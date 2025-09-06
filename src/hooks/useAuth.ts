@@ -33,7 +33,7 @@ export const useAuth = () => {
               .from('profiles')
               .select('*')
               .eq('user_id', session.user.id)
-              .single();
+              .maybeSingle();
             
             setProfile(profileData as Profile);
             setLoading(false);
@@ -57,7 +57,7 @@ export const useAuth = () => {
             .from('profiles')
             .select('*')
             .eq('user_id', session.user.id)
-            .single();
+            .maybeSingle();
           
           setProfile(profileData as Profile);
           setLoading(false);

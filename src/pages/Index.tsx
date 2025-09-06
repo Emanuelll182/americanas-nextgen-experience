@@ -8,6 +8,7 @@ import ChatBot from "@/components/ChatBot";
 import Footer from "@/components/Footer";
 import AuthPage from "@/components/Auth/AuthPage";
 import AdminDashboard from "@/components/Admin/AdminDashboard";
+import AdminNotice from "@/components/AdminNotice";
 import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
@@ -44,6 +45,7 @@ const Index = () => {
       />
       
       <main className="container mx-auto px-4 py-8">
+        <AdminNotice />
         <BannerCarousel />
         
         <SearchAndFilters
