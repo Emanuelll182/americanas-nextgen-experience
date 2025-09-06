@@ -48,7 +48,16 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       }
 
       if (selectedCategory && selectedCategory !== 'all') {
-        query = query.eq('categories.slug', selectedCategory);
+        // First get the category id
+        const { data: categoryData } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('slug', selectedCategory)
+          .single();
+        
+        if (categoryData) {
+          query = query.eq('category_id', categoryData.id);
+        }
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });

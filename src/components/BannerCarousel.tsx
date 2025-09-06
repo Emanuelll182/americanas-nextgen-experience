@@ -45,13 +45,13 @@ const BannerCarousel = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-64 bg-gradient-subtle animate-pulse rounded-lg mb-8" />
+      <div className="w-full h-80 md:h-96 bg-gradient-subtle animate-pulse rounded-lg mb-8" />
     );
   }
 
   if (banners.length === 0) {
     return (
-      <div className="w-full h-64 bg-gradient-primary rounded-lg mb-8 flex items-center justify-center">
+      <div className="w-full h-80 md:h-96 bg-gradient-primary rounded-lg mb-8 flex items-center justify-center">
         <div className="text-center text-primary-foreground">
           <h3 className="text-2xl font-bold mb-2">KECINFORSTORE</h3>
           <p className="text-lg">Os melhores produtos em tecnologia</p>
@@ -73,7 +73,7 @@ const BannerCarousel = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-64 w-full rounded-lg overflow-hidden">
+              <div className="relative h-80 md:h-96 w-full rounded-lg overflow-hidden">
                 {banner.link_url ? (
                   <a href={banner.link_url} target="_blank" rel="noopener noreferrer">
                     <img
