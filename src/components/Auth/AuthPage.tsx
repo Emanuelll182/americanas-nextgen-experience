@@ -36,7 +36,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
           throw new Error('As senhas não coincidem');
         }
 
-        const { error } = await signUp(
+        const { error, data } = await signUp(
           formData.email,
           formData.password,
           formData.setor,
@@ -45,10 +45,17 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
 
         if (error) throw error;
 
-        toast({
-          title: "Cadastro realizado!",
-          description: "Verifique seu email para confirmar a conta.",
-        });
+        if (data.user && !data.session) {
+          toast({
+            title: "Cadastro realizado!",
+            description: "Verifique seu email para confirmar a conta. Enquanto isso, você pode navegar como visitante.",
+          });
+        } else {
+          toast({
+            title: "Cadastro realizado!",
+            description: "Conta criada com sucesso!",
+          });
+        }
       } else {
         const { error } = await signIn(formData.email, formData.password);
         if (error) throw error;

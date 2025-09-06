@@ -69,7 +69,7 @@ const ChatBot = () => {
       {/* Chat Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-primary hover:opacity-90 shadow-lg z-50 ${
+        className={`fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-primary hover:opacity-90 shadow-lg z-[9998] ${
           isOpen ? 'hidden' : 'flex'
         }`}
         size="icon"
@@ -79,7 +79,7 @@ const ChatBot = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-6 right-6 w-80 h-96 z-50 shadow-xl border-0">
+        <Card className="fixed bottom-6 right-6 w-80 h-96 z-[9999] shadow-xl border-0 bg-background">{/* Higher z-index to avoid conflicts */}
           <CardHeader className="bg-gradient-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">KecBot</CardTitle>

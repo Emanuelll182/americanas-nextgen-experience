@@ -73,7 +73,7 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, setor: 'varejo' | 'revenda', phone?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -84,7 +84,13 @@ export const useAuth = () => {
         }
       }
     });
-    return { error };
+    
+    // If no error but user needs confirmation, provide feedback
+    if (!error && data.user && !data.session) {
+      console.log('User created but needs email confirmation');
+    }
+    
+    return { error, data };
   };
 
   const signIn = async (email: string, password: string) => {
