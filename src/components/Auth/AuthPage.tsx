@@ -64,7 +64,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
           title: "Login realizado!",
           description: "Bem-vindo de volta!",
         });
-        onBack();
+        setTimeout(() => onBack(), 100);
       }
     } catch (error: any) {
       toast({

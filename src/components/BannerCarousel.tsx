@@ -73,13 +73,17 @@ const BannerCarousel = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-80 md:h-96 w-full rounded-lg overflow-hidden">
+              <div className="relative h-80 md:h-96 w-full rounded-lg overflow-hidden bg-muted">
                 {banner.link_url ? (
                   <a href={banner.link_url} target="_blank" rel="noopener noreferrer">
                     <img
                       src={banner.image_url}
                       alt={banner.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 image-rendering-auto"
+                      style={{ 
+                        filter: 'contrast(1.1) saturate(1.1) brightness(1.05)',
+                      }}
+                      loading="eager"
                     />
                   </a>
                 ) : (
@@ -87,6 +91,10 @@ const BannerCarousel = () => {
                     src={banner.image_url}
                     alt={banner.title}
                     className="w-full h-full object-cover"
+                    style={{ 
+                      filter: 'contrast(1.1) saturate(1.1) brightness(1.05)',
+                    }}
+                    loading="eager"
                   />
                 )}
                 <div className="absolute inset-0 bg-black/20" />
