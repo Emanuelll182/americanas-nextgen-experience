@@ -20,54 +20,108 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Clear any invalid tokens first
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.warn('Session error, clearing storage:', error);
+          await supabase.auth.signOut();
+          localStorage.removeItem('supabase.auth.token');
+          if (mounted) {
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              if (mounted) {
+                setProfile(profileData as Profile);
+              }
+            } catch (profileError) {
+              console.warn('Profile fetch error:', profileError);
+            }
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.warn('Auth initialization error:', error);
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    };
+
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
+        if (event === 'TOKEN_REFRESHED' && !session) {
+          // Token refresh failed, clear everything
+          await supabase.auth.signOut();
+          localStorage.removeItem('supabase.auth.token');
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
+          try {
             const { data: profileData } = await supabase
               .from('profiles')
               .select('*')
               .eq('user_id', session.user.id)
               .maybeSingle();
             
-            setProfile(profileData as Profile);
-            setLoading(false);
-          }, 0);
+            if (mounted) {
+              setProfile(profileData as Profile);
+            }
+          } catch (profileError) {
+            console.warn('Profile fetch error:', profileError);
+            if (mounted) {
+              setProfile(null);
+            }
+          }
         } else {
           setProfile(null);
+        }
+        
+        if (mounted) {
           setLoading(false);
         }
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Fetch user profile
-        setTimeout(async () => {
-          const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .maybeSingle();
-          
-          setProfile(profileData as Profile);
-          setLoading(false);
-        }, 0);
-      } else {
-        setLoading(false);
-      }
-    });
+    // Initialize auth
+    initializeAuth();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, setor: 'varejo' | 'revenda', phone?: string) => {
