@@ -1,0 +1,185 @@
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft } from 'lucide-react';
+
+interface AuthPageProps {
+  onBack: () => void;
+}
+
+const AuthPage = ({ onBack }: AuthPageProps) => {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    setor: 'varejo' as 'varejo' | 'revenda'
+  });
+
+  const { signUp, signIn } = useAuth();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error('As senhas não coincidem');
+        }
+
+        const { error } = await signUp(
+          formData.email,
+          formData.password,
+          formData.setor,
+          formData.phone
+        );
+
+        if (error) throw error;
+
+        toast({
+          title: "Cadastro realizado!",
+          description: "Verifique seu email para confirmar a conta.",
+        });
+      } else {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) throw error;
+
+        toast({
+          title: "Login realizado!",
+          description: "Bem-vindo de volta!",
+        });
+        onBack();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Ocorreu um erro. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={onBack}>
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <CardTitle className="text-2xl bg-gradient-primary bg-clip-text text-transparent">
+                {isSignUp ? 'Criar Conta' : 'Login Revenda'}
+              </CardTitle>
+              <p className="text-muted-foreground mt-1">
+                {isSignUp ? 'Cadastre-se para acessar' : 'Entre com sua conta'}
+              </p>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+
+            {isSignUp && (
+              <>
+                <div>
+                  <Label htmlFor="phone">Telefone (opcional)</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="setor">Setor</Label>
+                  <Select value={formData.setor} onValueChange={(value: 'varejo' | 'revenda') => setFormData(prev => ({ ...prev, setor: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="varejo">Varejo</SelectItem>
+                      <SelectItem value="revenda">Revenda</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                required
+              />
+            </div>
+
+            {isSignUp && (
+              <div>
+                <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  required
+                />
+              </div>
+            )}
+
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-primary hover:opacity-90"
+              disabled={loading}
+            >
+              {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
+            </Button>
+
+            <div className="text-center">
+              <Button
+                type="button"
+                variant="link"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-primary hover:text-primary/80"
+              >
+                {isSignUp 
+                  ? 'Já tem uma conta? Faça login' 
+                  : 'Não tem conta? Cadastre-se'
+                }
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default AuthPage;
