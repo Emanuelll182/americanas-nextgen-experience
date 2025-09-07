@@ -38,40 +38,53 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   }, [searchTerm, selectedCategory]);
 
   const fetchProducts = async () => {
+    setLoading(true);
     try {
-      console.log('Fetching products...');
-      let query = supabase
+      console.log('Starting product fetch...');
+      
+      // Simple query first
+      const { data, error } = await supabase
         .from('products')
         .select(`
-          *,
-          category:categories(name, slug)
-        `);
+          id,
+          name,
+          description,
+          price_varejo,
+          price_revenda,
+          image_url,
+          sku,
+          category_id,
+          categories!inner(name, slug)
+        `)
+        .limit(20);
 
-      if (searchTerm) {
-        query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+      console.log('Product fetch result:', { data, error, count: data?.length });
+
+      if (error) {
+        console.error('Products error:', error);
+        throw error;
       }
 
-      if (selectedCategory && selectedCategory !== 'all') {
-        // First get the category id
-        const { data: categoryData } = await supabase
-          .from('categories')
-          .select('id')
-          .eq('slug', selectedCategory)
-          .single();
-        
-        if (categoryData) {
-          query = query.eq('category_id', categoryData.id);
+      // Transform data to match expected format
+      const transformedData = (data || []).map(item => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price_varejo: item.price_varejo,
+        price_revenda: item.price_revenda,
+        image_url: item.image_url,
+        sku: item.sku,
+        category: {
+          name: item.categories?.name || 'Sem categoria',
+          slug: item.categories?.slug || 'sem-categoria'
         }
-      }
+      }));
 
-      const { data, error } = await query.order('created_at', { ascending: false });
-
-      console.log('Products query result:', { data, error });
-
-      if (error) throw error;
-      setProducts(data || []);
+      console.log('Transformed products:', transformedData);
+      setProducts(transformedData);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -92,7 +105,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   };
 
   const handleWhatsAppContact = () => {
-    const phoneNumber = '5511999999999'; // Replace with actual WhatsApp number
+    const phoneNumber = '5511999999999';
     const message = 'Olá! Gostaria de saber mais sobre os produtos da KECINFORSTORE.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -110,11 +123,11 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {[...Array(8)].map((_, i) => (
           <Card key={i} className="overflow-hidden">
             <div className="w-full h-48 bg-muted animate-pulse" />
-            <CardContent className="p-4">
+            <CardContent className="p-2 md:p-4">
               <div className="h-4 bg-muted animate-pulse rounded mb-2" />
               <div className="h-3 bg-muted animate-pulse rounded mb-4" />
               <div className="h-6 bg-muted animate-pulse rounded" />
@@ -142,7 +155,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">
-          Produtos {getPriceLabel()}
+          Produtos {getPriceLabel()} ({products.length})
         </h2>
         <Button
           onClick={handleWhatsAppContact}

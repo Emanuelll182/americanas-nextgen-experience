@@ -21,123 +21,101 @@ export const useAuth = () => {
 
   useEffect(() => {
     let mounted = true;
-
-    const initializeAuth = async () => {
+    
+    // Get current session immediately
+    const getCurrentSession = async () => {
       try {
-        console.log('Starting auth initialization...');
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
-        if (error) {
-          console.warn('Session error:', error);
-          if (mounted) {
-            setSession(null);
-            setUser(null);
-            setProfile(null);
-            setLoading(false);
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          // If user exists, try to get profile
+          if (session?.user) {
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              if (mounted && profileData) {
+                setProfile(profileData as Profile);
+              }
+            } catch (err) {
+              console.warn('Profile fetch failed:', err);
+            }
           }
-          return;
+          
+          // Always set loading to false
+          setLoading(false);
         }
+      } catch (error) {
+        console.error('Session check failed:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
 
+    // Set up auth listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
           
           if (session?.user) {
-            console.log('User found, fetching profile...');
-            // Fetch profile with a simple direct query
-            const { data: profileData, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            console.log('Profile result:', profileData, profileError);
-            
-            if (mounted && profileData) {
-              setProfile(profileData as Profile);
+            try {
+              const { data: profileData } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              if (profileData) {
+                setProfile(profileData as Profile);
+              }
+            } catch (err) {
+              console.warn('Profile fetch in auth change failed:', err);
             }
+          } else {
+            setProfile(null);
           }
           
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        if (mounted) {
-          setSession(null);
-          setUser(null);
-          setProfile(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state change:', event);
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          console.log('Auth change: fetching profile...');
-          try {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('user_id', session.user.id)
-              .single();
-            
-            if (mounted && profileData) {
-              setProfile(profileData as Profile);
-            }
-          } catch (error) {
-            console.warn('Profile fetch error in auth change:', error);
-          }
-        } else {
-          setProfile(null);
-        }
-        
-        if (mounted) {
           setLoading(false);
         }
       }
     );
 
-    // Initialize
-    initializeAuth();
+    // Initial session check
+    getCurrentSession();
 
-    // Safety timeout
-    const timeoutId = setTimeout(() => {
+    // Emergency timeout
+    const emergency = setTimeout(() => {
       if (mounted) {
-        console.log('Safety timeout reached');
+        console.log('Emergency timeout - forcing app to load');
         setLoading(false);
       }
-    }, 3000);
+    }, 2000);
 
     return () => {
       mounted = false;
-      clearTimeout(timeoutId);
+      clearTimeout(emergency);
       subscription.unsubscribe();
     };
   }, []);
 
   const signUp = async (email: string, password: string, setor: string = 'varejo', phone?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          setor,
-          phone
-        }
+        emailRedirectTo: `${window.location.origin}/`,
+        data: { setor, phone }
       }
     });
-    
     return { error, data };
   };
 
@@ -150,7 +128,7 @@ export const useAuth = () => {
   };
 
   const signInWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/`

@@ -32,15 +32,22 @@ const SearchAndFilters = ({
 
   const fetchCategories = async () => {
     try {
+      console.log('Fetching categories...');
       const { data, error } = await supabase
         .from('categories')
         .select('*')
         .order('name', { ascending: true });
 
-      if (error) throw error;
+      console.log('Categories result:', { data, error });
+
+      if (error) {
+        console.error('Categories error:', error);
+        throw error;
+      }
       setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+      setCategories([]);
     }
   };
 
