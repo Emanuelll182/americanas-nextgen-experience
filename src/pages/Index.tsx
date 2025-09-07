@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import Footer from '@/components/Footer';
@@ -21,7 +21,31 @@ const Index = () => {
 
   console.log('🏠 Index render - loading:', loading);
   
-  if (loading) {
+  // Force load after 5 seconds if still loading (prevents infinite loading)
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.log('⏰ Force loading timeout after 5 seconds');
+        // Force render even if loading
+      }
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [loading]);
+  
+  // Show loading for maximum 5 seconds, then force show content
+  const [forceRender, setForceRender] = useState(false);
+  
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      console.log('⏰ Backup timeout - forcing load');
+      setForceRender(true);
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, []);
+  
+  if (loading && !forceRender) {
     console.log('🏠 Showing loading screen');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
