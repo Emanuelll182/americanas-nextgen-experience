@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LogOut, Package, Image, Tags, Users } from 'lucide-react';
+import { LogOut, Package, Image, Tags } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import ProductManagement from './ProductManagement';
 import BannerManagement from './BannerManagement';
 import CategoryManagement from './CategoryManagement';
-import ClientManagement from './ClientManagement';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -46,7 +45,7 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
       <div className="container mx-auto p-6">
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Produtos
@@ -58,10 +57,6 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
             <TabsTrigger value="categories" className="flex items-center gap-2">
               <Tags className="h-4 w-4" />
               Categorias
-            </TabsTrigger>
-            <TabsTrigger value="clients" className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Clientes
             </TabsTrigger>
           </TabsList>
 
@@ -75,10 +70,6 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
           <TabsContent value="categories">
             <CategoryManagement />
-          </TabsContent>
-
-          <TabsContent value="clients">
-            <ClientManagement />
           </TabsContent>
         </Tabs>
       </div>

@@ -39,7 +39,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
         const { error, data } = await signUp(
           formData.email,
           formData.password,
-          'varejo', // Setor padrão, será alterado pelo admin
+          formData.setor,
           formData.phone
         );
 
@@ -122,10 +122,17 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
                   />
                 </div>
 
-                <div className="p-3 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Nota:</strong> O setor será definido pelo administrador após a criação da conta.
-                  </p>
+                <div>
+                  <Label htmlFor="setor">Setor</Label>
+                  <Select value={formData.setor} onValueChange={(value: 'varejo' | 'revenda') => setFormData(prev => ({ ...prev, setor: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="varejo">Varejo</SelectItem>
+                      <SelectItem value="revenda">Revenda</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </>
             )}
