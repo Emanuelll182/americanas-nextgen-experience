@@ -46,7 +46,7 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
       <div className="container mx-auto p-6">
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-4">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Produtos
