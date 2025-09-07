@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
@@ -19,8 +18,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
     email: '',
     password: '',
     confirmPassword: '',
-    phone: '',
-    setor: 'varejo' as 'varejo' | 'revenda'
+    phone: ''
   });
 
   const { signUp, signIn } = useAuth();
@@ -39,7 +37,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
         const { error, data } = await signUp(
           formData.email,
           formData.password,
-          'varejo', // Setor padrão, será alterado pelo admin
+          'varejo', // Setor padrão, apenas admin pode alterar
           formData.phone
         );
 
@@ -87,7 +85,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
             </Button>
             <div>
               <CardTitle className="text-2xl bg-gradient-primary bg-clip-text text-transparent">
-                {isSignUp ? 'Criar Conta' : 'Login Revenda'}
+                {isSignUp ? 'Criar Conta' : 'Login'}
               </CardTitle>
               <p className="text-muted-foreground mt-1">
                 {isSignUp ? 'Cadastre-se para acessar' : 'Entre com sua conta'}
@@ -110,24 +108,16 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
             </div>
 
             {isSignUp && (
-              <>
-                <div>
-                  <Label htmlFor="phone">Telefone (opcional)</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="(11) 99999-9999"
-                  />
-                </div>
-
-                <div className="p-3 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Nota:</strong> O setor será definido pelo administrador após a criação da conta.
-                  </p>
-                </div>
-              </>
+              <div>
+                <Label htmlFor="phone">Telefone (opcional)</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
             )}
 
             <div>
