@@ -124,7 +124,7 @@ export const useAuth = () => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, setor: 'varejo' | 'revenda', phone?: string) => {
+  const signUp = async (email: string, password: string, setor: string = 'varejo', phone?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({

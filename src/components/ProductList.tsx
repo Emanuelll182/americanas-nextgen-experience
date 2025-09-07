@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, ShoppingCart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import ProductDetail from './ProductDetail';
 
 interface Product {
   id: string;
@@ -28,6 +29,8 @@ interface ProductListProps {
 const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const { profile } = useAuth();
 
   useEffect(() => {
@@ -92,6 +95,16 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
     window.open(whatsappUrl, '_blank');
   };
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    setSelectedProduct(null);
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -137,11 +150,12 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
         {products.map((product) => (
           <Card 
             key={product.id} 
             className="group cursor-pointer hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-0 shadow-sm overflow-hidden"
+            onClick={() => handleProductClick(product)}
           >
             <div className="relative">
               <img 
@@ -164,37 +178,47 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
               )}
             </div>
 
-            <CardContent className="p-4">
-              <h3 className="font-semibold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+            <CardContent className="p-2 md:p-4">
+              <h3 className="font-semibold text-foreground mb-1 md:mb-2 line-clamp-2 group-hover:text-primary transition-colors text-sm md:text-base">
                 {product.name}
               </h3>
               
               {product.description && (
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3 line-clamp-2 hidden md:block">
                   {product.description}
                 </p>
               )}
 
-              <div className="mb-4">
-                <div className="text-2xl font-bold text-primary">
+              <div className="mb-2 md:mb-4">
+                <div className="text-sm md:text-2xl font-bold text-primary">
                   R$ {getPrice(product).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs md:text-sm text-muted-foreground hidden md:block">
                   ou 12x de R$ {Math.round(getPrice(product) / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
 
               <Button 
-                className="w-full bg-gradient-primary hover:opacity-90 font-semibold"
-                onClick={handleWhatsAppContact}
+                className="w-full bg-gradient-primary hover:opacity-90 font-semibold text-xs md:text-sm py-1 md:py-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleWhatsAppContact();
+                }}
               >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                Consultar Preço
+                <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                <span className="hidden md:inline">Consultar Preço</span>
+                <span className="md:hidden">Consultar</span>
               </Button>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <ProductDetail 
+        product={selectedProduct}
+        isOpen={isDetailOpen}
+        onClose={handleCloseDetail}
+      />
     </div>
   );
 };

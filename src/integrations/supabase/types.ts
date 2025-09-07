@@ -124,6 +124,7 @@ export type Database = {
           email: string
           id: string
           is_admin: boolean
+          is_blocked: boolean
           phone: string | null
           setor: string
           updated_at: string
@@ -134,6 +135,7 @@ export type Database = {
           email: string
           id?: string
           is_admin?: boolean
+          is_blocked?: boolean
           phone?: string | null
           setor: string
           updated_at?: string
@@ -144,6 +146,7 @@ export type Database = {
           email?: string
           id?: string
           is_admin?: boolean
+          is_blocked?: boolean
           phone?: string | null
           setor?: string
           updated_at?: string
@@ -156,7 +159,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      admin_create_user: {
+        Args: {
+          user_email: string
+          user_password: string
+          user_phone?: string
+          user_setor?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
