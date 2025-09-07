@@ -110,7 +110,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
                 {isSignUp ? 'Criar Conta' : 'Login'}
               </CardTitle>
               <p className="text-muted-foreground mt-1">
-                {isSignUp ? 'Cadastre-se para acessar' : 'Entre com sua conta'}
+                {isSignUp ? 'Cadastre-se para acessar preços especiais' : 'Entre com sua conta'}
               </p>
             </div>
           </div>
@@ -225,6 +225,9 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
                   : 'Não tem conta? Cadastre-se'
                 }
               </Button>
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                {isSignUp && 'Nota: O setor será definido pelo administrador após aprovação'}
+              </p>
             </div>
           </form>
         </CardContent>
