@@ -39,6 +39,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
   const fetchProducts = async () => {
     try {
+      console.log('Fetching products...');
       let query = supabase
         .from('products')
         .select(`
@@ -64,6 +65,8 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
+
+      console.log('Products query result:', { data, error });
 
       if (error) throw error;
       setProducts(data || []);
