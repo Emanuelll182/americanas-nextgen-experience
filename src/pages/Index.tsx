@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import Header from "@/components/Header";
-import BannerCarousel from "@/components/BannerCarousel";
+import SimpleBannerCarousel from "@/components/SimpleBannerCarousel";
 import SearchAndFilters from "@/components/SearchAndFilters";
 import ProductList from "@/components/ProductList";
 import ChatBot from "@/components/ChatBot";
@@ -16,18 +15,10 @@ const Index = () => {
   const [showAdmin, setShowAdmin] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { user, profile, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
+  // Simplified loading - no useAuth dependency for now
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
 
   if (showAuth) {
     return <AuthPage onBack={() => setShowAuth(false)} />;
@@ -46,7 +37,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         <AdminNotice />
-        <BannerCarousel />
+        <SimpleBannerCarousel />
         
         <SearchAndFilters
           onSearchChange={setSearchTerm}

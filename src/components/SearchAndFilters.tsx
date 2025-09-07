@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -42,9 +41,10 @@ const SearchAndFilters = ({
 
       if (error) {
         console.error('Categories error:', error);
-        throw error;
+        setCategories([]);
+      } else {
+        setCategories(data || []);
       }
-      setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
       setCategories([]);
@@ -52,22 +52,22 @@ const SearchAndFilters = ({
   };
 
   return (
-    <div className="bg-background border rounded-lg p-6 mb-8 shadow-sm">
+    <div className="bg-white border rounded-lg p-6 mb-8 shadow-sm">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Search Input */}
         <div className="relative md:col-span-2">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Buscar produtos por nome..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 h-12 border-2 border-muted focus:border-primary"
+            className="pl-10 h-12 border-2"
           />
         </div>
 
         {/* Category Filter */}
         <Select value={selectedCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger className="h-12 border-2 border-muted">
+          <SelectTrigger className="h-12 border-2">
             <SelectValue placeholder="Filtrar por categoria" />
           </SelectTrigger>
           <SelectContent>
