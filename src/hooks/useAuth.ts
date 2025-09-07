@@ -45,36 +45,19 @@ export const useAuth = () => {
               
               console.log('👤 Profile result:', { profileData, profileError });
               
-              if (mounted) {
-                if (profileData) {
-                  setProfile(profileData as Profile);
-                  console.log('✅ Profile loaded successfully');
-                } else if (!profileError) {
-                  // No profile found - create one
-                  console.log('⚠️ No profile found, creating one...');
-                  const { data: newProfile, error: createError } = await supabase
-                    .from('profiles')
-                    .insert({
-                      user_id: session.user.id,
-                      email: session.user.email || '',
-                      setor: 'varejo',
-                      is_admin: false,
-                      is_blocked: false
-                    })
-                    .select()
-                    .single();
-                    
-                  if (createError) {
-                    console.error('❌ Error creating profile:', createError);
-                  } else {
-                    console.log('✅ Profile created successfully');
-                    setProfile(newProfile as Profile);
-                  }
-                }
+              if (mounted && profileData) {
+                setProfile(profileData as Profile);
+                console.log('✅ Profile loaded successfully');
+              } else {
+                console.log('⚠️ No profile found for user');
+                setProfile(null);
               }
             } catch (err) {
               console.warn('❌ Profile fetch failed:', err);
+              setProfile(null);
             }
+          } else {
+            setProfile(null);
           }
           
           // Always set loading to false
@@ -108,25 +91,11 @@ export const useAuth = () => {
               if (profileData) {
                 setProfile(profileData as Profile);
               } else {
-                // Create profile if it doesn't exist
-                const { data: newProfile } = await supabase
-                  .from('profiles')
-                  .insert({
-                    user_id: session.user.id,
-                    email: session.user.email || '',
-                    setor: 'varejo',
-                    is_admin: false,
-                    is_blocked: false
-                  })
-                  .select()
-                  .single();
-                  
-                if (newProfile) {
-                  setProfile(newProfile as Profile);
-                }
+                setProfile(null);
               }
             } catch (err) {
               console.warn('Profile fetch in auth change failed:', err);
+              setProfile(null);
             }
           } else {
             setProfile(null);
@@ -140,13 +109,13 @@ export const useAuth = () => {
     // Initial session check
     getCurrentSession();
 
-    // Emergency timeout
+    // Emergency timeout - simplified
     const emergency = setTimeout(() => {
       if (mounted) {
         console.log('⏰ Emergency timeout - forcing app to load');
         setLoading(false);
       }
-    }, 3000); // Increased to 3 seconds
+    }, 2000);
 
     return () => {
       mounted = false;
