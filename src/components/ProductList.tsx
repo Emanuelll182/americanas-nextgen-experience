@@ -35,19 +35,36 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
   const fetchProducts = async () => {
     console.log('🛍️ Starting product fetch...');
+    console.log('🔍 Filters - Search:', searchTerm, 'Category:', selectedCategory);
     setLoading(true);
     
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          categories!inner(name, slug)
+        `)
         .order('created_at', { ascending: false });
+
+      // Apply category filter
+      if (selectedCategory && selectedCategory !== 'all') {
+        query = query.eq('categories.slug', selectedCategory);
+      }
+
+      // Apply search filter
+      if (searchTerm && searchTerm.trim() !== '') {
+        query = query.ilike('name', `%${searchTerm.trim()}%`);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('❌ Products error:', error.message);
         setProducts([]);
       } else {
         console.log('✅ Products loaded:', data?.length || 0);
+        console.log('📊 Applied filters - Category:', selectedCategory, 'Search:', searchTerm);
         setProducts(data || []);
       }
     } catch (error) {
