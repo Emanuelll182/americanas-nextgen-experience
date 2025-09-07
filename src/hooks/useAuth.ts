@@ -21,9 +21,19 @@ export const useAuth = () => {
 
   useEffect(() => {
     let mounted = true;
+    let timeoutId: NodeJS.Timeout;
+
+    // Fallback timeout to prevent infinite loading
+    timeoutId = setTimeout(() => {
+      if (mounted) {
+        console.log('Auth timeout reached, forcing loading to false');
+        setLoading(false);
+      }
+    }, 5000); // 5 second timeout
 
     const initializeAuth = async () => {
       try {
+        console.log('Starting auth initialization...');
         // Clear any invalid tokens first
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -40,17 +50,22 @@ export const useAuth = () => {
           return;
         }
 
+        console.log('Session retrieved:', !!session);
+
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
           
           if (session?.user) {
+            console.log('Fetching profile for user:', session.user.id);
             try {
-              const { data: profileData } = await supabase
+              const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
                 .maybeSingle();
+              
+              console.log('Profile data:', profileData, 'Profile error:', profileError);
               
               if (mounted) {
                 setProfile(profileData as Profile);
@@ -59,16 +74,20 @@ export const useAuth = () => {
               console.warn('Profile fetch error:', profileError);
             }
           } else {
+            console.log('No user session found');
             setProfile(null);
           }
+          console.log('Setting loading to false');
+          clearTimeout(timeoutId);
           setLoading(false);
         }
       } catch (error) {
-        console.warn('Auth initialization error:', error);
+        console.error('Auth initialization error:', error);
         if (mounted) {
           setSession(null);
           setUser(null);
           setProfile(null);
+          clearTimeout(timeoutId);
           setLoading(false);
         }
       }
@@ -77,6 +96,7 @@ export const useAuth = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, !!session);
         if (!mounted) return;
         
         if (event === 'TOKEN_REFRESHED' && !session) {
@@ -90,17 +110,20 @@ export const useAuth = () => {
         
         if (session?.user) {
           try {
-            const { data: profileData } = await supabase
+            console.log('Fetching profile in auth change for user:', session.user.id);
+            const { data: profileData, error: profileError } = await supabase
               .from('profiles')
               .select('*')
               .eq('user_id', session.user.id)
               .maybeSingle();
             
+            console.log('Profile data from auth change:', profileData, 'Error:', profileError);
+            
             if (mounted) {
               setProfile(profileData as Profile);
             }
           } catch (profileError) {
-            console.warn('Profile fetch error:', profileError);
+            console.error('Profile fetch error in auth change:', profileError);
             if (mounted) {
               setProfile(null);
             }
@@ -110,6 +133,8 @@ export const useAuth = () => {
         }
         
         if (mounted) {
+          console.log('Setting loading to false in auth change');
+          clearTimeout(timeoutId);
           setLoading(false);
         }
       }
@@ -120,6 +145,7 @@ export const useAuth = () => {
 
     return () => {
       mounted = false;
+      clearTimeout(timeoutId);
       subscription.unsubscribe();
     };
   }, []);
