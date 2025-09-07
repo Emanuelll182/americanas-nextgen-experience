@@ -52,6 +52,8 @@ const Index = () => {
       
       <BannerCarousel />
       
+      <FeaturedProducts />
+      
       <main className="container mx-auto px-4 py-8">
         <SearchAndFilters
           searchTerm={searchTerm}
@@ -67,7 +69,6 @@ const Index = () => {
       </main>
 
       <CategoriesSection />
-      <FeaturedProducts />
       <Footer />
       <ChatBot />
     </div>
