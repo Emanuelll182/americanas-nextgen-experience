@@ -16,51 +16,51 @@ export type Database = {
     Tables: {
       banners: {
         Row: {
-          created_at: string
+          created_at: string | null
           id: string
           image_url: string
-          is_active: boolean
+          is_active: boolean | null
           link_url: string | null
-          order_position: number
+          order_position: number | null
           title: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           image_url: string
-          is_active?: boolean
+          is_active?: boolean | null
           link_url?: string | null
-          order_position?: number
+          order_position?: number | null
           title: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           id?: string
           image_url?: string
-          is_active?: boolean
+          is_active?: boolean | null
           link_url?: string | null
-          order_position?: number
+          order_position?: number | null
           title?: string
         }
         Relationships: []
       }
       categories: {
         Row: {
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
           name: string
           slug: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           name: string
           slug: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           name?: string
@@ -71,42 +71,36 @@ export type Database = {
       products: {
         Row: {
           category_id: string | null
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
           image_url: string | null
           name: string
           price_revenda: number
           price_varejo: number
-          setor: string
           sku: string | null
-          updated_at: string
         }
         Insert: {
           category_id?: string | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
           name: string
-          price_revenda: number
-          price_varejo: number
-          setor: string
+          price_revenda?: number
+          price_varejo?: number
           sku?: string | null
-          updated_at?: string
         }
         Update: {
           category_id?: string | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
           name?: string
           price_revenda?: number
           price_varejo?: number
-          setor?: string
           sku?: string | null
-          updated_at?: string
         }
         Relationships: [
           {
@@ -120,36 +114,36 @@ export type Database = {
       }
       profiles: {
         Row: {
-          created_at: string
+          created_at: string | null
           email: string
           id: string
-          is_admin: boolean
-          is_blocked: boolean
+          is_admin: boolean | null
+          is_blocked: boolean | null
           phone: string | null
           setor: string
-          updated_at: string
+          updated_at: string | null
           user_id: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
           email: string
           id?: string
-          is_admin?: boolean
-          is_blocked?: boolean
+          is_admin?: boolean | null
+          is_blocked?: boolean | null
           phone?: string | null
-          setor: string
-          updated_at?: string
+          setor?: string
+          updated_at?: string | null
           user_id: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
           email?: string
           id?: string
-          is_admin?: boolean
-          is_blocked?: boolean
+          is_admin?: boolean | null
+          is_blocked?: boolean | null
           phone?: string | null
           setor?: string
-          updated_at?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
