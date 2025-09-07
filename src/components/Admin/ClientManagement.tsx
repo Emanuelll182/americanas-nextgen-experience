@@ -66,14 +66,16 @@ const ClientManagement = () => {
     setLoading(true);
 
     try {
-      // Use Supabase Auth Admin API to create user
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      // Create user directly via sign up first
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          setor: formData.setor,
-          phone: formData.phone
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            setor: formData.setor,
+            phone: formData.phone
+          }
         }
       });
 
@@ -166,8 +168,11 @@ const ClientManagement = () => {
 
   const handleDeleteClient = async (client: Client) => {
     try {
-      // Delete from auth.users will cascade to profiles due to foreign key
-      const { error } = await supabase.auth.admin.deleteUser(client.user_id);
+      // Delete the profile (this will not delete from auth.users automatically)
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', client.id);
 
       if (error) throw error;
 

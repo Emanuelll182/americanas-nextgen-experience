@@ -139,11 +139,6 @@ export const useAuth = () => {
       }
     });
     
-    // If no error but user needs confirmation, provide feedback
-    if (!error && data.user && !data.session) {
-      console.log('User created but needs email confirmation');
-    }
-    
     return { error, data };
   };
 
@@ -151,6 +146,16 @@ export const useAuth = () => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
+    });
+    return { error };
+  };
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`
+      }
     });
     return { error };
   };
@@ -167,6 +172,7 @@ export const useAuth = () => {
     loading,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
   };
 };
