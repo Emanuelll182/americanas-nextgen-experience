@@ -25,7 +25,9 @@ export const useAuth = () => {
     // Get current session immediately
     const getCurrentSession = async () => {
       try {
+        console.log('🔍 Checking current session...');
         const { data: { session } } = await supabase.auth.getSession();
+        console.log('📱 Session result:', { session: !!session, user: session?.user?.email });
         
         if (mounted) {
           setSession(session);
@@ -34,25 +36,53 @@ export const useAuth = () => {
           // If user exists, try to get profile
           if (session?.user) {
             try {
-              const { data: profileData } = await supabase
+              console.log('👤 Fetching profile for user:', session.user.id);
+              const { data: profileData, error: profileError } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
                 .maybeSingle();
               
-              if (mounted && profileData) {
-                setProfile(profileData as Profile);
+              console.log('👤 Profile result:', { profileData, profileError });
+              
+              if (mounted) {
+                if (profileData) {
+                  setProfile(profileData as Profile);
+                  console.log('✅ Profile loaded successfully');
+                } else if (!profileError) {
+                  // No profile found - create one
+                  console.log('⚠️ No profile found, creating one...');
+                  const { data: newProfile, error: createError } = await supabase
+                    .from('profiles')
+                    .insert({
+                      user_id: session.user.id,
+                      email: session.user.email || '',
+                      setor: 'varejo',
+                      is_admin: false,
+                      is_blocked: false
+                    })
+                    .select()
+                    .single();
+                    
+                  if (createError) {
+                    console.error('❌ Error creating profile:', createError);
+                  } else {
+                    console.log('✅ Profile created successfully');
+                    setProfile(newProfile as Profile);
+                  }
+                }
               }
             } catch (err) {
-              console.warn('Profile fetch failed:', err);
+              console.warn('❌ Profile fetch failed:', err);
             }
           }
           
           // Always set loading to false
+          console.log('🏁 Setting loading to false');
           setLoading(false);
         }
       } catch (error) {
-        console.error('Session check failed:', error);
+        console.error('❌ Session check failed:', error);
         if (mounted) {
           setLoading(false);
         }
@@ -62,6 +92,7 @@ export const useAuth = () => {
     // Set up auth listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔔 Auth state changed:', event, session?.user?.email);
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
@@ -76,6 +107,23 @@ export const useAuth = () => {
               
               if (profileData) {
                 setProfile(profileData as Profile);
+              } else {
+                // Create profile if it doesn't exist
+                const { data: newProfile } = await supabase
+                  .from('profiles')
+                  .insert({
+                    user_id: session.user.id,
+                    email: session.user.email || '',
+                    setor: 'varejo',
+                    is_admin: false,
+                    is_blocked: false
+                  })
+                  .select()
+                  .single();
+                  
+                if (newProfile) {
+                  setProfile(newProfile as Profile);
+                }
               }
             } catch (err) {
               console.warn('Profile fetch in auth change failed:', err);
@@ -95,10 +143,10 @@ export const useAuth = () => {
     // Emergency timeout
     const emergency = setTimeout(() => {
       if (mounted) {
-        console.log('Emergency timeout - forcing app to load');
+        console.log('⏰ Emergency timeout - forcing app to load');
         setLoading(false);
       }
-    }, 2000);
+    }, 3000); // Increased to 3 seconds
 
     return () => {
       mounted = false;

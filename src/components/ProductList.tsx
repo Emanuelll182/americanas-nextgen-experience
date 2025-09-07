@@ -34,25 +34,31 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      console.log('Fetching products with simple query...');
+      console.log('🛍️ Fetching products...');
       
       const { data, error } = await supabase
         .from('products')
         .select('*')
         .limit(50);
 
-      console.log('Simple product fetch result:', { data, error, count: data?.length });
+      console.log('🛍️ Products fetch result:', { 
+        data: data?.length, 
+        error: error?.message,
+        products: data?.map(p => p.name) 
+      });
 
       if (error) {
-        console.error('Products error:', error);
+        console.error('❌ Products error:', error);
         setProducts([]);
       } else {
+        console.log('✅ Products loaded successfully:', data?.length || 0);
         setProducts(data || []);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error('❌ Error fetching products:', error);
       setProducts([]);
     } finally {
+      console.log('🏁 Products loading finished');
       setLoading(false);
     }
   };

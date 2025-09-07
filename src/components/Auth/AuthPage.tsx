@@ -27,6 +27,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('🔐 Starting authentication process...');
 
     try {
       if (isSignUp) {
@@ -55,9 +56,11 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
           });
         }
       } else {
+        console.log('🔐 Attempting login...');
         const { error } = await signIn(formData.email, formData.password);
         if (error) throw error;
 
+        console.log('✅ Login successful');
         toast({
           title: "Login realizado!",
           description: "Bem-vindo de volta!",
@@ -65,12 +68,14 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
         setTimeout(() => onBack(), 100);
       }
     } catch (error: any) {
+      console.error('❌ Authentication error:', error);
       toast({
         title: "Erro",
         description: error.message || "Ocorreu um erro. Tente novamente.",
         variant: "destructive",
       });
     } finally {
+      console.log('🏁 Authentication process finished');
       setLoading(false);
     }
   };
