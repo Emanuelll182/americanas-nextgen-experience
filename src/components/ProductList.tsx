@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MessageCircle, ShoppingCart, Eye } from 'lucide-react';
 import ProductDetail from '@/components/ProductDetail';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Product {
   id: string;
@@ -26,6 +27,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const { profile } = useAuth();
 
   useEffect(() => {
     fetchProducts();
@@ -153,11 +155,16 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
                 <div className="mb-3 md:mb-4">
                   <div className="text-lg md:text-xl font-bold text-blue-600">
-                    R$ {product.price_varejo?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                    R$ {(profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo)?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
                   </div>
                   <div className="text-xs text-gray-500 hidden md:block">
-                    ou 12x de R$ {((product.price_varejo || 0) / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    ou 12x de R$ {((profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo) || 0 / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
+                  {profile?.setor === 'revenda' && (
+                    <div className="text-xs text-green-600 font-medium">
+                      Preço Revenda
+                    </div>
+                  )}
                 </div>
 
                 <Button 

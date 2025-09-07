@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { LogOut, Package, Image, Tags, Users } from 'lucide-react';
+import { LogOut, Package, Image, Tags, Users, Star } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import ProductManagement from './ProductManagement';
 import BannerManagement from './BannerManagement';
 import CategoryManagement from './CategoryManagement';
 import ClientManagement from './ClientManagement';
+import FeaturedProductsManagement from './FeaturedProductsManagement';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -46,10 +47,14 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
       <div className="container mx-auto p-6">
         <Tabs defaultValue="products" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
               Produtos
+            </TabsTrigger>
+            <TabsTrigger value="featured" className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              Destaques
             </TabsTrigger>
             <TabsTrigger value="banners" className="flex items-center gap-2">
               <Image className="h-4 w-4" />
@@ -67,6 +72,10 @@ const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
           <TabsContent value="products">
             <ProductManagement />
+          </TabsContent>
+
+          <TabsContent value="featured">
+            <FeaturedProductsManagement />
           </TabsContent>
 
           <TabsContent value="banners">

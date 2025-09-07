@@ -75,6 +75,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          is_featured: boolean | null
           name: string
           price_revenda: number
           price_varejo: number
@@ -86,6 +87,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           name: string
           price_revenda?: number
           price_varejo?: number
@@ -97,6 +99,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          is_featured?: boolean | null
           name?: string
           price_revenda?: number
           price_varejo?: number
