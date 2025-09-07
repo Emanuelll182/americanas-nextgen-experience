@@ -22,104 +22,66 @@ export const useAuth = () => {
   useEffect(() => {
     let mounted = true;
     
-    // Get current session immediately
-    const getCurrentSession = async () => {
+    const initAuth = async () => {
       try {
-        console.log('🔍 Checking current session...');
+        console.log('🚀 Starting auth initialization...');
+        
+        // Get current session
         const { data: { session } } = await supabase.auth.getSession();
-        console.log('📱 Session result:', { session: !!session, user: session?.user?.email });
+        console.log('👤 Current session:', session?.user?.email || 'No user');
         
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
           
-          // If user exists, try to get profile
+          // Get profile if user exists
           if (session?.user) {
-            try {
-              console.log('👤 Fetching profile for user:', session.user.id);
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .maybeSingle();
-              
-              console.log('👤 Profile result:', { profileData, profileError });
-              
-              if (mounted && profileData) {
-                setProfile(profileData as Profile);
-                console.log('✅ Profile loaded successfully');
-              } else {
-                console.log('⚠️ No profile found for user');
-                setProfile(null);
-              }
-            } catch (err) {
-              console.warn('❌ Profile fetch failed:', err);
-              setProfile(null);
-            }
-          } else {
-            setProfile(null);
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+            
+            console.log('👤 Profile found:', profileData ? 'Yes' : 'No');
+            setProfile(profileData as Profile);
           }
           
-          // Always set loading to false
-          console.log('🏁 Setting loading to false');
+          console.log('✅ Auth initialization complete');
           setLoading(false);
         }
       } catch (error) {
-        console.error('❌ Session check failed:', error);
-        if (mounted) {
-          setLoading(false);
-        }
+        console.error('❌ Auth init error:', error);
+        if (mounted) setLoading(false);
       }
     };
 
     // Set up auth listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('🔔 Auth state changed:', event, session?.user?.email);
+      (event, session) => {
+        console.log('🔔 Auth event:', event);
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            try {
-              const { data: profileData } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .maybeSingle();
-              
-              if (profileData) {
-                setProfile(profileData as Profile);
-              } else {
-                setProfile(null);
-              }
-            } catch (err) {
-              console.warn('Profile fetch in auth change failed:', err);
-              setProfile(null);
-            }
-          } else {
-            setProfile(null);
-          }
-          
+          setProfile(null); // Reset profile, will be loaded separately
           setLoading(false);
         }
       }
     );
 
-    // Initial session check
-    getCurrentSession();
+    // Initialize
+    initAuth();
 
-    // Emergency timeout - simplified
-    const emergency = setTimeout(() => {
+    // Backup timeout
+    const timeout = setTimeout(() => {
       if (mounted) {
-        console.log('⏰ Emergency timeout - forcing app to load');
+        console.log('⏰ Backup timeout - forcing load');
         setLoading(false);
       }
-    }, 2000);
+    }, 1500);
 
     return () => {
       mounted = false;
-      clearTimeout(emergency);
+      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, []);

@@ -32,35 +32,29 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   }, [searchTerm, selectedCategory]);
 
   const fetchProducts = async () => {
+    console.log('🛍️ Starting product fetch...');
     setLoading(true);
+    
     try {
-      console.log('🛍️ Fetching products...');
-      
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .limit(50);
-
-      console.log('🛍️ Products fetch result:', { 
-        data: data?.length, 
-        error: error?.message,
-        products: data?.map(p => p.name) 
-      });
+        .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Products error:', error);
+        console.error('❌ Products error:', error.message);
         setProducts([]);
       } else {
-        console.log('✅ Products loaded successfully:', data?.length || 0);
+        console.log('✅ Products loaded:', data?.length || 0);
         setProducts(data || []);
       }
     } catch (error) {
-      console.error('❌ Error fetching products:', error);
+      console.error('❌ Fetch error:', error);
       setProducts([]);
-    } finally {
-      console.log('🏁 Products loading finished');
-      setLoading(false);
     }
+    
+    console.log('🏁 Product fetch complete');
+    setLoading(false);
   };
 
   const handleWhatsAppContact = () => {

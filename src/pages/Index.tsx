@@ -19,7 +19,10 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { loading } = useAuth();
 
+  console.log('🏠 Index render - loading:', loading);
+  
   if (loading) {
+    console.log('🏠 Showing loading screen');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -29,6 +32,8 @@ const Index = () => {
       </div>
     );
   }
+
+  console.log('🏠 Showing main content');
 
   if (showAuth) {
     return <AuthPage onBack={() => setShowAuth(false)} />;
