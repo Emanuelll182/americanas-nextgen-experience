@@ -31,6 +31,7 @@ const FeaturedProducts = () => {
 
   const fetchFeaturedProducts = async () => {
     try {
+      console.log('🌟 Fetching featured products...');
       const { data, error } = await supabase
         .from('products')
         .select('*')
@@ -38,13 +39,30 @@ const FeaturedProducts = () => {
         .limit(4);
 
       if (error) {
-        console.error('Error fetching featured products:', error);
-        return;
+        console.error('❌ Error fetching featured products:', error);
+        // Try to get any products if featured query fails
+        const { data: fallbackData } = await supabase
+          .from('products')
+          .select('*')
+          .limit(4);
+        setProducts(fallbackData || []);
+      } else {
+        console.log('✅ Featured products loaded:', data?.length || 0);
+        setProducts(data || []);
       }
-
-      setProducts(data || []);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('❌ Error:', error);
+      // Final fallback - try to load any products
+      try {
+        const { data: fallbackData } = await supabase
+          .from('products')
+          .select('*')
+          .limit(4);
+        setProducts(fallbackData || []);
+      } catch (finalError) {
+        console.error('❌ Final fallback failed:', finalError);
+        setProducts([]);
+      }
     } finally {
       setLoading(false);
     }

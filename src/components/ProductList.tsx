@@ -61,7 +61,20 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
       if (error) {
         console.error('❌ Products error:', error.message);
-        setProducts([]);
+        // If join fails, try simple query without categories
+        console.log('🔄 Retrying with simple query...');
+        const { data: simpleData, error: simpleError } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (simpleError) {
+          console.error('❌ Simple query also failed:', simpleError.message);
+          setProducts([]);
+        } else {
+          console.log('✅ Products loaded via simple query:', simpleData?.length || 0);
+          setProducts(simpleData || []);
+        }
       } else {
         console.log('✅ Products loaded:', data?.length || 0);
         console.log('📊 Applied filters - Category:', selectedCategory, 'Search:', searchTerm);
@@ -69,7 +82,17 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       }
     } catch (error) {
       console.error('❌ Fetch error:', error);
-      setProducts([]);
+      // Fallback to simple query
+      try {
+        const { data: fallbackData } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        setProducts(fallbackData || []);
+      } catch (fallbackError) {
+        console.error('❌ Fallback error:', fallbackError);
+        setProducts([]);
+      }
     }
     
     console.log('🏁 Product fetch complete');

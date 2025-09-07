@@ -18,34 +18,23 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { loading } = useAuth();
-
-  console.log('🏠 Index render - loading:', loading);
   
-  // Force load after 5 seconds if still loading (prevents infinite loading)
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.log('⏰ Force loading timeout after 5 seconds');
-        // Force render even if loading
-      }
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, [loading]);
-  
-  // Show loading for maximum 5 seconds, then force show content
-  const [forceRender, setForceRender] = useState(false);
+  // Show loading only for a very short time, then show content regardless
+  const [showContent, setShowContent] = useState(false);
   
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      console.log('⏰ Backup timeout - forcing load');
-      setForceRender(true);
-    }, 2000);
-
-    return () => clearTimeout(timeout);
+    // Show content after a short delay, regardless of auth state
+    const timer = setTimeout(() => {
+      setShowContent(true);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
+
+  console.log('🏠 Index render - loading:', loading, 'showContent:', showContent);
   
-  if (loading && !forceRender) {
+  // Only show loading screen for the first second
+  if (!showContent) {
     console.log('🏠 Showing loading screen');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
