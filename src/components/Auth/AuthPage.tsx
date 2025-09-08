@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/components/AuthProvider'; // ajuste para o caminho real
+import { useAuth } from '@/components/AuthProvider'; // ajuste conforme o caminho do seu AuthProvider
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 
@@ -21,10 +21,8 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
     phone: ''
   });
 
-  const { signUp, signIn, signInWithGoogle } = useAuth();
+  const { signUp, signIn, signInWithGoogle, setUser } = useAuth();
   const { toast } = useToast();
-
-  const waitForAuthUpdate = () => new Promise(resolve => setTimeout(resolve, 400));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +34,7 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
           throw new Error('As senhas não coincidem');
         }
 
-        const { error, data } = await signUp(
+        const { data, error } = await signUp(
           formData.email,
           formData.password,
           'varejo',
@@ -45,6 +43,9 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
 
         if (error) throw error;
 
+        // Atualiza usuário no contexto
+        if (data?.user) setUser(data.user);
+
         toast({
           title: "Cadastro realizado!",
           description: data.user && !data.session
@@ -52,16 +53,17 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
             : "Conta criada com sucesso!"
         });
       } else {
-        const { error } = await signIn(formData.email, formData.password);
+        const { data, error } = await signIn(formData.email, formData.password);
         if (error) throw error;
+
+        // Atualiza usuário no contexto
+        if (data?.session?.user) setUser(data.session.user);
 
         toast({
           title: "Login realizado!",
           description: "Bem-vindo de volta!",
         });
 
-        // espera o AuthProvider atualizar o estado do usuário
-        await waitForAuthUpdate();
         onBack();
       }
     } catch (error: any) {
@@ -78,16 +80,16 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const { error } = await signInWithGoogle();
+      const { data, error } = await signInWithGoogle();
       if (error) throw error;
+
+      if (data?.user) setUser(data.user);
 
       toast({
         title: "Login realizado!",
         description: "Bem-vindo!",
       });
 
-      // espera o AuthProvider atualizar o estado do usuário
-      await waitForAuthUpdate();
       onBack();
     } catch (error: any) {
       toast({
