@@ -8,7 +8,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-hero opacity-90 z-10"></div>
       <img 
         src={heroImage} 
-        alt="Ofertas especiais Americanas" 
+        alt="Ofertas especiais Kecinforstore" 
         className="absolute inset-0 w-full h-full object-cover"
       />
       
