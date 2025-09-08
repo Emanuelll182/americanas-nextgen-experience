@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Component, ReactNode } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import { AuthProvider } from "@/components/AuthProvider"; // <--- IMPORTANTE
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,7 +32,7 @@ class ErrorBoundary extends Component<
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   render() {
@@ -40,9 +41,11 @@ class ErrorBoundary extends Component<
         <div className="min-h-screen bg-background flex items-center justify-center">
           <div className="text-center p-8">
             <h2 className="text-xl font-bold mb-4">Oops! Algo deu errado</h2>
-            <p className="text-muted-foreground mb-4">Por favor, recarregue a página</p>
-            <button 
-              onClick={() => window.location.reload()} 
+            <p className="text-muted-foreground mb-4">
+              Por favor, recarregue a página
+            </p>
+            <button
+              onClick={() => window.location.reload()}
               className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90"
             >
               Recarregar Página
@@ -62,13 +65,15 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AuthProvider> {/* <-- Envolvendo o app com AuthProvider */}
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
   </ErrorBoundary>
