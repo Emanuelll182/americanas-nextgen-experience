@@ -46,7 +46,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           categories!inner(name, slug)
         `)
         .order('created_at', { ascending: false })
-        .limit(10); // 👈 Limitando a 10 produtos
+        .limit(15); // 👈 Limitando a 10 produtos
 
       // Filtro de categoria
       if (selectedCategory && selectedCategory !== 'all') {
