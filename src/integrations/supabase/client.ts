@@ -5,9 +5,6 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://btjullcrugzilpnxjoyr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ0anVsbGNydWd6aWxwbnhqb3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcxNzU1OTgsImV4cCI6MjA3Mjc1MTU5OH0.lBmJsUovvaIhf2dS9LNO1oRrk7ZPaGfCISJHwLlZu9Y";
 
-// Import the supabase client like this:
-// import { supabase } from "@/integrations/supabase/client";
-
 console.log('🔧 Initializing Supabase client...', {
   url: SUPABASE_URL,
   hasKey: !!SUPABASE_PUBLISHABLE_KEY,
@@ -16,9 +13,9 @@ console.log('🔧 Initializing Supabase client...', {
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
-    persistSession: typeof window !== 'undefined',
+    persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: true, // garante login social (Google etc.)
   },
   global: {
     headers: {
