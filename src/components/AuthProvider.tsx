@@ -1,4 +1,3 @@
-// src/context/AuthProvider.tsx
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,24 +12,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const getSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    setUser(data.session?.user ?? null);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    // Pega sessão inicial
-    const getSession = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error) console.error(error);
-      setUser(data?.session?.user ?? null);
-      setLoading(false);
-    };
     getSession();
 
-    // Escuta mudanças de autenticação (login, logout, refresh token)
+    // Escuta mudanças globais (login/logout)
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
-    return () => subscription.unsubscribe();
+    // Escuta mudanças entre abas
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === "supabase.auth.token") {
+        getSession();
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+
+    // Escuta quando a aba volta para foco
+    const handleFocus = () => {
+      getSession();
+    };
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, []);
 
   return (
