@@ -67,7 +67,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           .from('products')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(11);
+          .limit(10); // 👈 também limitado aqui
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
@@ -88,7 +88,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           .from('products')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(12); // 👈 também limitado no fallback
+          .limit(10); // 👈 também limitado no fallback
         setProducts(fallbackData || []);
       } catch (fallbackError) {
         console.error('❌ Fallback error:', fallbackError);
@@ -102,7 +102,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
   const handleWhatsAppContact = () => {
     const phoneNumber = '558534833373';
-    const message = '`Olá! Gostaria de saber mais sobre os produtos da Kecinforstore. ';
+    const message = 'Olá! Gostaria de saber mais sobre os produtos da KECINFORSTORE.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
