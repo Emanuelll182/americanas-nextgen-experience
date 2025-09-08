@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/components/AuthProvider'; // ajuste conforme o caminho do seu AuthProvider
+import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 
@@ -40,23 +40,20 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
           'varejo',
           formData.phone
         );
-
         if (error) throw error;
 
-        // Atualiza usuário no contexto
         if (data?.user) setUser(data.user);
 
         toast({
           title: "Cadastro realizado!",
           description: data.user && !data.session
-            ? "Verifique seu email para confirmar a conta. Enquanto isso, você pode navegar como visitante."
+            ? "Verifique seu email para confirmar a conta."
             : "Conta criada com sucesso!"
         });
       } else {
         const { data, error } = await signIn(formData.email, formData.password);
         if (error) throw error;
 
-        // Atualiza usuário no contexto
         if (data?.session?.user) setUser(data.session.user);
 
         toast({
@@ -171,41 +168,9 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-primary hover:opacity-90"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90" disabled={loading}>
               {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
             </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  ou
-                </span>
-              </div>
-            </div>
-
-            <div className="text-center">
-              <Button
-                type="button"
-                variant="link"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary hover:text-primary/80"
-              >
-                {isSignUp 
-                  ? 'Já tem uma conta? Faça login' 
-                  : 'Não tem conta? Cadastre-se'
-                }
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                {isSignUp && 'Nota: O setor será definido pelo administrador após aprovação'}
-              </p>
-            </div>
 
             <div className="text-center mt-2">
               <Button
@@ -215,6 +180,17 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
                 disabled={loading}
               >
                 {loading ? 'Carregando...' : 'Entrar com Google'}
+              </Button>
+            </div>
+
+            <div className="text-center mt-2">
+              <Button
+                type="button"
+                variant="link"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-primary hover:text-primary/80"
+              >
+                {isSignUp ? 'Já tem uma conta? Faça login' : 'Não tem conta? Cadastre-se'}
               </Button>
             </div>
           </form>
