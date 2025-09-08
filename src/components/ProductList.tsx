@@ -45,15 +45,15 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           *,
           categories!inner(name, slug)
         `)
-        .order('created_at', { ascending: false });
-       .limit(10);
+        .order('created_at', { ascending: false })
+        .limit(10); // 👈 Limitando a 10 produtos
 
-      // Apply category filter
+      // Filtro de categoria
       if (selectedCategory && selectedCategory !== 'all') {
         query = query.eq('categories.slug', selectedCategory);
       }
 
-      // Apply search filter
+      // Filtro de busca
       if (searchTerm && searchTerm.trim() !== '') {
         query = query.ilike('name', `%${searchTerm.trim()}%`);
       }
@@ -62,13 +62,12 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
       if (error) {
         console.error('❌ Products error:', error.message);
-        // If join fails, try simple query without categories
         console.log('🔄 Retrying with simple query...');
         const { data: simpleData, error: simpleError } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false });
-        .limit(10);
+          .order('created_at', { ascending: false })
+          .limit(10); // 👈 também limitado aqui
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
@@ -84,12 +83,12 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       }
     } catch (error) {
       console.error('❌ Fetch error:', error);
-      // Fallback to simple query
       try {
         const { data: fallbackData } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(10); // 👈 também limitado no fallback
         setProducts(fallbackData || []);
       } catch (fallbackError) {
         console.error('❌ Fallback error:', fallbackError);
