@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/components/AuthProvider'; // ajuste para o caminho real
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 
@@ -24,10 +24,11 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
   const { signUp, signIn, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
+  const waitForAuthUpdate = () => new Promise(resolve => setTimeout(resolve, 400));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    console.log('🔐 Starting authentication process...');
 
     try {
       if (isSignUp) {
@@ -38,44 +39,38 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
         const { error, data } = await signUp(
           formData.email,
           formData.password,
-          'varejo', // Setor padrão, apenas admin pode alterar
+          'varejo',
           formData.phone
         );
 
         if (error) throw error;
 
-        if (data.user && !data.session) {
-          toast({
-            title: "Cadastro realizado!",
-            description: "Verifique seu email para confirmar a conta. Enquanto isso, você pode navegar como visitante.",
-          });
-        } else {
-          toast({
-            title: "Cadastro realizado!",
-            description: "Conta criada com sucesso!",
-          });
-        }
+        toast({
+          title: "Cadastro realizado!",
+          description: data.user && !data.session
+            ? "Verifique seu email para confirmar a conta. Enquanto isso, você pode navegar como visitante."
+            : "Conta criada com sucesso!"
+        });
       } else {
-        console.log('🔐 Attempting login...');
         const { error } = await signIn(formData.email, formData.password);
         if (error) throw error;
 
-        console.log('✅ Login successful');
         toast({
           title: "Login realizado!",
           description: "Bem-vindo de volta!",
         });
-        setTimeout(() => onBack(), 100);
+
+        // espera o AuthProvider atualizar o estado do usuário
+        await waitForAuthUpdate();
+        onBack();
       }
     } catch (error: any) {
-      console.error('❌ Authentication error:', error);
       toast({
         title: "Erro",
         description: error.message || "Ocorreu um erro. Tente novamente.",
         variant: "destructive",
       });
     } finally {
-      console.log('🏁 Authentication process finished');
       setLoading(false);
     }
   };
@@ -85,12 +80,15 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
     try {
       const { error } = await signInWithGoogle();
       if (error) throw error;
-      
+
       toast({
         title: "Login realizado!",
         description: "Bem-vindo!",
       });
-      setTimeout(() => onBack(), 100);
+
+      // espera o AuthProvider atualizar o estado do usuário
+      await waitForAuthUpdate();
+      onBack();
     } catch (error: any) {
       toast({
         title: "Erro",
@@ -190,7 +188,6 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
               </div>
             </div>
 
-            
             <div className="text-center">
               <Button
                 type="button"
@@ -206,6 +203,17 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
               <p className="text-xs text-muted-foreground text-center mt-2">
                 {isSignUp && 'Nota: O setor será definido pelo administrador após aprovação'}
               </p>
+            </div>
+
+            <div className="text-center mt-2">
+              <Button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full bg-red-500 text-white hover:opacity-90"
+                disabled={loading}
+              >
+                {loading ? 'Carregando...' : 'Entrar com Google'}
+              </Button>
             </div>
           </form>
         </CardContent>
