@@ -46,7 +46,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           categories!inner(name, slug)
         `)
         .order('created_at', { ascending: false })
-        .limit(15); // 👈 Limitando a 10 produtos
+        .limit(8); // 👈 Limitando a 10 produtos
 
       // Filtro de categoria
       if (selectedCategory && selectedCategory !== 'all') {
@@ -66,8 +66,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
         const { data: simpleData, error: simpleError } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10); // 👈 também limitado aqui
+          .order('created_at', { ascending: false });
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
