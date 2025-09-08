@@ -46,6 +46,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           categories!inner(name, slug)
         `)
         .order('created_at', { ascending: false });
+       .limit(10);
 
       // Apply category filter
       if (selectedCategory && selectedCategory !== 'all') {
@@ -67,6 +68,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
+        .limit(10);
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
