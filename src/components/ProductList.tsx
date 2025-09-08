@@ -100,9 +100,11 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
     setLoading(false);
   };
 
-  const handleWhatsAppContact = () => {
+  const handleWhatsAppContact = (product?: Product) => {
     const phoneNumber = '558534833373';
-    const message = 'Olá! Gostaria de saber mais sobre a Kecinforstore.';
+    const message = product 
+      ? `Olá! Gostaria de saber mais sobre o produto: ${product.name} (SKU: ${product.sku})`
+      : 'Olá! Gostaria de saber mais sobre os produtos da KECINFORSTORE.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
