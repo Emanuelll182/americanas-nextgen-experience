@@ -23,15 +23,7 @@ const Footer = () => {
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
                 <Truck className="h-6 w-6 text-primary-foreground" />
               </div>
-              <div>
-                <h3 className="font-semibold text-background">Frete Grátis</h3>
-                <p className="text-sm text-background/70">A partir de R$ 199</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-                <Shield className="h-6 w-6 text-primary-foreground" />
-              </div>
+            
               <div>
                 <h3 className="font-semibold text-background">Compra Segura</h3>
                 <p className="text-sm text-background/70">SSL & Certificações</p>
@@ -43,7 +35,7 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="font-semibold text-background">Parcele em 12x</h3>
-                <p className="text-sm text-background/70">Sem juros no cartão</p>
+                <p className="text-sm text-background/70">Com acréscimo da taxa da maquineta</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -51,8 +43,8 @@ const Footer = () => {
                 <Smartphone className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-background">App Exclusivo</h3>
-                <p className="text-sm text-background/70">Ofertas especiais</p>
+                <h3 className="font-semibold text-background">Site Exclusivo</h3>
+                <p className="text-sm text-background/70">Ofertas especiais para revendedores</p>
               </div>
             </div>
           </div>
@@ -65,7 +57,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-4">
-              Americanas
+              Kecinforstore
             </h2>
             <p className="text-background/70 mb-6 max-w-md">
               A maior plataforma de e-commerce do Brasil. Milhões de produtos com entrega rápida e segura para todo o país.
@@ -113,7 +105,7 @@ const Footer = () => {
 
           {/* About */}
           <div>
-            <h3 className="font-semibold text-background mb-4">Sobre a Americanas</h3>
+            <h3 className="font-semibold text-background mb-4">Sobre a Kecinforstore</h3>
             <ul className="space-y-2">
               <li><a href="#" className="text-background/70 hover:text-background transition-colors">Quem Somos</a></li>
               <li><a href="#" className="text-background/70 hover:text-background transition-colors">Trabalhe Conosco</a></li>
@@ -131,7 +123,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-background/70 text-sm">
-            © 2024 Americanas. Todos os direitos reservados.
+            © 2025 Kecinforstore. Todos os direitos reservados.
           </p>
           
           {/* Social media */}
