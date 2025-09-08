@@ -46,14 +46,12 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           categories!inner(name, slug)
         `)
         .order('created_at', { ascending: false })
-        .limit(10); // 👈 Limitando a 10 produtos
+        .limit(10);
 
-      // Filtro de categoria
       if (selectedCategory && selectedCategory !== 'all') {
         query = query.eq('categories.slug', selectedCategory);
       }
 
-      // Filtro de busca
       if (searchTerm && searchTerm.trim() !== '') {
         query = query.ilike('name', `%${searchTerm.trim()}%`);
       }
@@ -88,7 +86,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           .from('products')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(12); // 👈 também limitado no fallback
+          .limit(12);
         setProducts(fallbackData || []);
       } catch (fallbackError) {
         console.error('❌ Fallback error:', fallbackError);
@@ -100,9 +98,11 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
     setLoading(false);
   };
 
-  const handleWhatsAppContact = () => {
+  const handleWhatsAppContact = (product?: Product) => {
     const phoneNumber = '558534833373';
-    const message = '`Olá! Gostaria de saber mais sobre o produto: ${product.name} (SKU: ${product.sku || 'N/A'})';
+    const message = product
+      ? `Olá! Gostaria de saber mais sobre o produto: ${product.name} (SKU: ${product.sku || 'N/A'})`
+      : 'Olá! Gostaria de informações sobre os produtos disponíveis.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
@@ -145,7 +145,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           Produtos ({products.length})
         </h2>
         <Button
-          onClick={handleWhatsAppContact}
+          onClick={() => handleWhatsAppContact()}
           className="bg-green-500 hover:bg-green-600 text-white"
         >
           <MessageCircle className="h-4 w-4 mr-2" />
@@ -210,7 +210,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs md:text-sm h-8 md:h-10"
-                  onClick={handleWhatsAppContact}
+                  onClick={() => handleWhatsAppContact(product)}
                 >
                   <ShoppingCart className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                   Consultar
