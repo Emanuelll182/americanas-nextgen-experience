@@ -46,7 +46,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           categories!inner(name, slug)
         `)
         .order('created_at', { ascending: false })
-        .limit(8); // 👈 Limitando a 10 produtos
+        .limit(10); // 👈 Limitando a 10 produtos
 
       // Filtro de categoria
       if (selectedCategory && selectedCategory !== 'all') {
@@ -88,7 +88,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           .from('products')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(10); // 👈 também limitado no fallback
+          .limit(12); // 👈 também limitado no fallback
         setProducts(fallbackData || []);
       } catch (fallbackError) {
         console.error('❌ Fallback error:', fallbackError);
