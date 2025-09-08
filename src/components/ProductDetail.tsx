@@ -47,7 +47,7 @@ const ProductDetail = ({ product, isOpen, onClose }: ProductDetailProps) => {
   };
 
   const handleWhatsAppContact = () => {
-    const phoneNumber = '5511999999999';
+    const phoneNumber = '558534833373';
     const message = `Olá! Gostaria de saber mais sobre o produto: ${product.name} (SKU: ${product.sku || 'N/A'})`;
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
