@@ -66,7 +66,8 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
         const { data: simpleData, error: simpleError } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(11);
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
