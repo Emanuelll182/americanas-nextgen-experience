@@ -1,28 +1,24 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   Smartphone, 
-  Monitor, 
-  Keyboard, 
-  Mouse, 
-  Headphones, 
-  Printer, 
-  Server, 
-  Gamepad2, 
-  HardDrive, 
-  Laptop 
+  Home, 
+  Shirt, 
+  Sparkles, 
+  Dumbbell, 
+  Book, 
+  Gamepad2,
+  Car
 } from "lucide-react";
 
 const categories = [
-  { name: "Celulares", icon: Smartphone, color: "bg-blue-100 text-blue-600" },
-  { name: "Notebooks", icon: Laptop, color: "bg-green-100 text-green-600" },
-  { name: "Monitores", icon: Monitor, color: "bg-purple-100 text-purple-600" },
-  { name: "Periféricos", icon: Keyboard, color: "bg-pink-100 text-pink-600" },
-  { name: "Mouses", icon: Mouse, color: "bg-orange-100 text-orange-600" },
-  { name: "Headsets", icon: Headphones, color: "bg-indigo-100 text-indigo-600" },
-  { name: "Impressoras", icon: Printer, color: "bg-red-100 text-red-600" },
-  { name: "Armazenamento", icon: HardDrive, color: "bg-yellow-100 text-yellow-600" },
-  { name: "Servidores", icon: Server, color: "bg-teal-100 text-teal-600" },
-  { name: "Gamer", icon: Gamepad2, color: "bg-rose-100 text-rose-600" },
+  { name: "Eletrônicos", icon: Smartphone, color: "bg-blue-100 text-blue-600" },
+  { name: "Casa", icon: Home, color: "bg-green-100 text-green-600" },
+  { name: "Moda", icon: Shirt, color: "bg-purple-100 text-purple-600" },
+  { name: "Luzes", icon: Sparkles, color: "bg-pink-100 text-pink-600" },
+  { name: "Esportes", icon: Dumbbell, color: "bg-orange-100 text-orange-600" },
+  { name: "Livros", icon: Book, color: "bg-indigo-100 text-indigo-600" },
+  { name: "Games", icon: Gamepad2, color: "bg-red-100 text-red-600" },
+  { name: "Automotivo", icon: Car, color: "bg-yellow-100 text-yellow-600" },
 ];
 
 const CategoriesSection = () => {
@@ -34,11 +30,11 @@ const CategoriesSection = () => {
             Explore nossas categorias
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Tudo em informática e tecnologia para você ou sua empresa
+            Encontre exatamente o que você procura em nossa ampla variedade de produtos
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {categories.map((category) => {
             const IconComponent = category.icon;
             return (
@@ -61,6 +57,6 @@ const CategoriesSection = () => {
       </div>
     </section>
   );
-}; eu 
+};
 
 export default CategoriesSection;
