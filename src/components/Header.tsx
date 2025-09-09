@@ -80,40 +80,42 @@ const Header = ({
 
           {/* Search and Filters */}
           <div className="flex-1 max-w-2xl mx-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {/* Search Input */}
-              <div className="relative md:col-span-2">
+            <div className="flex gap-2">
+              {/* Search Input - Mobile: Icon only, Desktop: Full */}
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Buscar produtos..."
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  className="pl-10 h-10"
+                  className="pl-10 h-10 sm:placeholder:opacity-100 placeholder:opacity-0"
                 />
               </div>
 
-              {/* Category Filter */}
-              <Select value={selectedCategory} onValueChange={onCategoryChange}>
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder="Categorias" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border shadow-md z-50">
-                  <SelectItem value="all">Todas</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.slug}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Category Filter - Hidden on mobile, shown on tablet+ */}
+              <div className="hidden sm:block min-w-[140px]">
+                <Select value={selectedCategory} onValueChange={onCategoryChange}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Categorias" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-md z-50">
+                    <SelectItem value="all">Todas</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.slug}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
           {/* User Info and Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {user && profile ? (
-              <div className="flex items-center gap-4">
-                <div className="text-sm">
+              <div className="flex items-center gap-2">
+                <div className="text-sm hidden sm:block">
                   <span className="text-muted-foreground">Olá, </span>
                   <span className="font-medium">{profile.email}</span>
                   {profile.is_admin && (
@@ -123,7 +125,7 @@ const Header = ({
                   )}
                 </div>
                 {profile.is_admin && (
-                  <Button variant="outline" size="sm" onClick={onAdminClick}>
+                  <Button variant="outline" size="sm" onClick={onAdminClick} className="hidden sm:inline-flex">
                     Painel Admin
                   </Button>
                 )}
@@ -136,9 +138,10 @@ const Header = ({
                 variant="outline" 
                 onClick={onAuthClick}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                size="sm"
               >
-                <User className="h-4 w-4 mr-2" />
-                Login Revenda
+                <User className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Login Revenda</span>
               </Button>
             )}
           </div>
