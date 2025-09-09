@@ -45,15 +45,14 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           *,
           categories!inner(name, slug)
         `)
-        .order('created_at', { ascending: false })
-        .limit(10); // 👈 Limitando a 10 produtos
+        .order('created_at', { ascending: false });
 
-      // Filtro de categoria
+      // Apply category filter
       if (selectedCategory && selectedCategory !== 'all') {
         query = query.eq('categories.slug', selectedCategory);
       }
 
-      // Filtro de busca
+      // Apply search filter
       if (searchTerm && searchTerm.trim() !== '') {
         query = query.ilike('name', `%${searchTerm.trim()}%`);
       }
@@ -62,12 +61,12 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
       if (error) {
         console.error('❌ Products error:', error.message);
+        // If join fails, try simple query without categories
         console.log('🔄 Retrying with simple query...');
         const { data: simpleData, error: simpleError } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10); // 👈 também limitado aqui
+          .order('created_at', { ascending: false });
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
@@ -83,12 +82,12 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       }
     } catch (error) {
       console.error('❌ Fetch error:', error);
+      // Fallback to simple query
       try {
         const { data: fallbackData } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false })
-          .limit(10); // 👈 também limitado no fallback
+          .order('created_at', { ascending: false });
         setProducts(fallbackData || []);
       } catch (fallbackError) {
         console.error('❌ Fallback error:', fallbackError);
@@ -100,7 +99,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
     setLoading(false);
   };
 
-  const handleWhatsAppContact = (product?: Product) => {
+  const handleWhatsAppContact = () => {
     const phoneNumber = '558534833373';
     const message = 'Olá! Gostaria de saber mais sobre os produtos da KECINFORSTORE.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -161,8 +160,8 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {products.map((product) => (
-            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-              <div className="relative">
+            <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow group cursor-pointer">
+              <div className="relative" onClick={() => handleProductClick(product)}>
                 <img 
                   src={product.image_url || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop'} 
                   alt={product.name}
@@ -176,7 +175,10 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
                 <Button
                   size="icon"
                   className="absolute top-2 left-2 bg-white/80 hover:bg-white text-primary opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => handleProductClick(product)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProductClick(product);
+                  }}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
