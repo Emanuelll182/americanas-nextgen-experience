@@ -69,8 +69,6 @@ const Index = () => {
       
       <BannerCarousel />
       
-      <HeroSection />
-      
       <FeaturedProducts />
       
       {/* Only show ProductList when there's a search term or category selected */}
