@@ -168,20 +168,6 @@ const AuthPage = ({ onBack }: AuthPageProps) => {
               </div>
             )}
 
-            <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90" disabled={loading}>
-              {loading ? 'Carregando...' : (isSignUp ? 'Criar Conta' : 'Entrar')}
-            </Button>
-
-            <div className="text-center mt-2">
-              <Button
-                type="button"
-                onClick={handleGoogleSignIn}
-                className="w-full bg-red-500 text-white hover:opacity-90"
-                disabled={loading}
-              >
-                {loading ? 'Carregando...' : 'Entrar com Google'}
-              </Button>
-            </div>
 
             <div className="text-center mt-2">
               <Button
