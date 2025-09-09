@@ -21,6 +21,7 @@ All colors MUST be HSL.
     --primary: 280 100% 40%;
     --primary-foreground: 0 0% 98%;
     --primary-glow: 320 100% 60%;
+    --primary-light: 280 100% 70%;
     
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -78,6 +79,7 @@ All colors MUST be HSL.
     --primary: 280 100% 40%;
     --primary-foreground: 0 0% 98%;
     --primary-glow: 320 100% 60%;
+    --primary-light: 280 100% 70%;
 
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
@@ -112,5 +114,24 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    /* Prevent Google Translate from breaking the layout */
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* Google Translate compatibility */
+  .goog-te-banner-frame {
+    display: none !important;
+  }
+  
+  body.goog-tr-page {
+    padding-top: 0 !important;
+  }
+  
+  /* Ensure colors work even when DOM is modified */
+  html[class*="translated"] body,
+  body[class*="translated"] {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
   }
 }
