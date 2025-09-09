@@ -18,23 +18,11 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { loading } = useAuth();
-  
-  // Show loading only for a very short time, then show content regardless
-  const [showContent, setShowContent] = useState(false);
-  
-  useEffect(() => {
-    // Show content after a short delay, regardless of auth state
-    const timer = setTimeout(() => {
-      setShowContent(true);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
-  console.log('🏠 Index render - loading:', loading, 'showContent:', showContent);
+  console.log('🏠 Index render - loading:', loading);
   
-  // Only show loading screen for the first second
-  if (!showContent) {
+  // Show loading screen while auth is initializing
+  if (loading) {
     console.log('🏠 Showing loading screen');
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
