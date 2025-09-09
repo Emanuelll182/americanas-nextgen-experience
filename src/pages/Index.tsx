@@ -61,27 +61,27 @@ const Index = () => {
       <Header 
         onAuthClick={() => setShowAuth(true)}
         onAdminClick={() => setShowAdmin(true)}
+        searchTerm={searchTerm}
+        selectedCategory={selectedCategory}
+        onSearchChange={setSearchTerm}
+        onCategoryChange={setSelectedCategory}
       />
       
       <BannerCarousel />
       
       <FeaturedProducts />
       
-      <main className="container mx-auto px-4 py-8">
-        <SearchAndFilters
-          searchTerm={searchTerm}
-          selectedCategory={selectedCategory}
-          onSearchChange={setSearchTerm}
-          onCategoryChange={setSelectedCategory}
-        />
-        
-        <ProductList
-          searchTerm={searchTerm}
-          selectedCategory={selectedCategory}
-        />
-      </main>
+      {/* Only show ProductList when there's a search term or category selected */}
+      {(searchTerm.trim() !== '' || selectedCategory !== 'all') && (
+        <main className="container mx-auto px-4 py-8">        
+          <ProductList
+            searchTerm={searchTerm}
+            selectedCategory={selectedCategory}
+          />
+        </main>
+      )}
 
-      <CategoriesSection />
+      <CategoriesSection onCategorySelect={setSelectedCategory} />
       <Footer />
       <ChatBot />
     </div>
