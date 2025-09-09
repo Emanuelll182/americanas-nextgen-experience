@@ -1,14 +1,59 @@
 import { Search, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface HeaderProps {
   onAuthClick: () => void;
   onAdminClick: () => void;
+  searchTerm: string;
+  selectedCategory: string;
+  onSearchChange: (term: string) => void;
+  onCategoryChange: (category: string) => void;
 }
 
-const Header = ({ onAuthClick, onAdminClick }: HeaderProps) => {
+const Header = ({ 
+  onAuthClick, 
+  onAdminClick, 
+  searchTerm, 
+  selectedCategory, 
+  onSearchChange, 
+  onCategoryChange 
+}: HeaderProps) => {
   const { user, profile, signOut } = useAuth();
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Categories error:', error);
+        setCategories([]);
+      } else {
+        setCategories(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setCategories([]);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -31,6 +76,37 @@ const Header = ({ onAuthClick, onAdminClick }: HeaderProps) => {
             <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent animate-fade-in">
               KECINFORSTORE
             </h1>
+          </div>
+
+          {/* Search and Filters */}
+          <div className="flex-1 max-w-2xl mx-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              {/* Search Input */}
+              <div className="relative md:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar produtos..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="pl-10 h-10"
+                />
+              </div>
+
+              {/* Category Filter */}
+              <Select value={selectedCategory} onValueChange={onCategoryChange}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Categorias" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border shadow-md z-50">
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.slug}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* User Info and Actions */}
