@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabasePublic as supabase } from '@/integrations/supabase/publicClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,11 +34,11 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   }, [searchTerm, selectedCategory]);
 
   const fetchProducts = async () => {
-    console.log('🛍️ Starting product fetch...');
-    console.log('🔍 Filters - Search:', searchTerm, 'Category:', selectedCategory);
-    setLoading(true);
-    
     try {
+      console.log('🛍️ Starting product fetch...');
+      console.log('🔍 Filters - Search:', searchTerm, 'Category:', selectedCategory);
+      setLoading(true);
+      
       let query = supabase
         .from('products')
         .select(`
@@ -49,14 +49,17 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
 
       // Apply category filter
       if (selectedCategory && selectedCategory !== 'all') {
+        console.log('🏷️ Applying category filter:', selectedCategory);
         query = query.eq('categories.slug', selectedCategory);
       }
 
       // Apply search filter
       if (searchTerm && searchTerm.trim() !== '') {
+        console.log('🔍 Applying search filter:', searchTerm);
         query = query.ilike('name', `%${searchTerm.trim()}%`);
       }
 
+      console.log('📡 Executing query...');
       const { data, error } = await query;
 
       if (error) {
@@ -76,7 +79,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           setProducts(simpleData || []);
         }
       } else {
-        console.log('✅ Products loaded:', data?.length || 0);
+        console.log('✅ Products loaded successfully:', data?.length || 0);
         console.log('📊 Applied filters - Category:', selectedCategory, 'Search:', searchTerm);
         setProducts(data || []);
       }
@@ -84,19 +87,21 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
       console.error('❌ Fetch error:', error);
       // Fallback to simple query
       try {
+        console.log('🔄 Trying fallback query...');
         const { data: fallbackData } = await supabase
           .from('products')
           .select('*')
           .order('created_at', { ascending: false });
+        console.log('✅ Fallback query success:', fallbackData?.length || 0);
         setProducts(fallbackData || []);
       } catch (fallbackError) {
         console.error('❌ Fallback error:', fallbackError);
         setProducts([]);
       }
+    } finally {
+      console.log('🏁 Product fetch complete');
+      setLoading(false);
     }
-    
-    console.log('🏁 Product fetch complete');
-    setLoading(false);
   };
 
   const handleWhatsAppContact = () => {
@@ -199,6 +204,9 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
                 <div className="mb-3 md:mb-4">
                   <div className="text-lg md:text-xl font-bold text-blue-600">
                     R$ {(profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo)?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
+                  </div>
+                  <div className="text-xs text-gray-500 hidden md:block">
+                    ou 12x de R$ {((profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo) || 0 / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
                   {profile?.setor === 'revenda' && (
                     <div className="text-xs text-green-600 font-medium">
