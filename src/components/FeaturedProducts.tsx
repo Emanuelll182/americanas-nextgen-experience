@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Heart, Eye, MessageCircle } from "lucide-react";
+import { Star, Heart, Eye, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import ProductDetail from '@/components/ProductDetail';
@@ -23,6 +23,7 @@ const FeaturedProducts = () => {
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const { profile } = useAuth();
 
   useEffect(() => {
@@ -35,8 +36,7 @@ const FeaturedProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('is_featured', true)
-        .limit(4);
+        .eq('is_featured', true);
 
       if (error) {
         console.error('❌ Error fetching featured products:', error);
@@ -44,7 +44,7 @@ const FeaturedProducts = () => {
         const { data: fallbackData } = await supabase
           .from('products')
           .select('*')
-          .limit(4);
+          .limit(8);
         setProducts(fallbackData || []);
       } else {
         console.log('✅ Featured products loaded:', data?.length || 0);
@@ -57,7 +57,7 @@ const FeaturedProducts = () => {
         const { data: fallbackData } = await supabase
           .from('products')
           .select('*')
-          .limit(4);
+          .limit(8);
         setProducts(fallbackData || []);
       } catch (finalError) {
         console.error('❌ Final fallback failed:', finalError);
@@ -89,6 +89,21 @@ const FeaturedProducts = () => {
 
   const getPrice = (product: Product) => {
     return profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo;
+  };
+
+  const productsPerPage = 4;
+  const totalPages = Math.ceil(products.length / productsPerPage);
+  const currentProducts = products.slice(
+    currentPage * productsPerPage,
+    (currentPage + 1) * productsPerPage
+  );
+
+  const nextPage = () => {
+    setCurrentPage((prev) => (prev + 1) % totalPages);
+  };
+
+  const prevPage = () => {
+    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
   if (loading) {
@@ -148,8 +163,31 @@ const FeaturedProducts = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
+        <div className="relative">
+          {/* Navigation buttons - only show if more than 4 products */}
+          {products.length > 4 && (
+            <>
+              <Button
+                size="icon"
+                variant="outline"
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white shadow-lg"
+                onClick={prevPage}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white shadow-lg"
+                onClick={nextPage}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-12 md:px-0">
+            {currentProducts.map((product) => (
             <Card 
               key={product.id} 
               className="group cursor-pointer hover:shadow-card transition-all duration-300 hover:-translate-y-1 border-0 shadow-sm overflow-hidden"
@@ -213,13 +251,23 @@ const FeaturedProducts = () => {
                 </Button>
               </CardContent>
             </Card>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg" className="px-8">
-            Ver Todos os Produtos
-          </Button>
+          {/* Pagination dots - only show if more than 4 products */}
+          {products.length > 4 && (
+            <div className="flex justify-center mt-8 gap-2">
+              {Array.from({ length: totalPages }).map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    index === currentPage ? 'bg-primary w-6' : 'bg-muted-foreground/30'
+                  }`}
+                  onClick={() => setCurrentPage(index)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
