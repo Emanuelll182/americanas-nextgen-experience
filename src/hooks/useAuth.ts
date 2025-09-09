@@ -27,7 +27,12 @@ export const useAuth = () => {
         console.log('🚀 Starting auth initialization...');
         
         // Get current session
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Session error:', error);
+        }
+        
         console.log('👤 Current session:', session?.user?.email || 'No user');
         
         if (mounted) {
@@ -36,14 +41,22 @@ export const useAuth = () => {
           
           // Get profile if user exists
           if (session?.user) {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('user_id', session.user.id)
-              .maybeSingle();
-            
-            console.log('👤 Profile found:', profileData ? 'Yes' : 'No');
-            setProfile(profileData as Profile);
+            try {
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .maybeSingle();
+              
+              if (profileError) {
+                console.error('❌ Profile error:', profileError);
+              } else {
+                console.log('👤 Profile found:', profileData ? 'Yes' : 'No');
+                setProfile(profileData as Profile);
+              }
+            } catch (profileErr) {
+              console.error('❌ Profile fetch error:', profileErr);
+            }
           }
           
           console.log('✅ Auth initialization complete');
@@ -51,20 +64,39 @@ export const useAuth = () => {
         }
       } catch (error) {
         console.error('❌ Auth init error:', error);
-        if (mounted) setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     // Set up auth listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('🔔 Auth event:', event);
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          setProfile(null); // Reset profile, will be loaded separately
-          setLoading(false);
+        
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Load profile for signed in user
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          try {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+            setProfile(profileData as Profile);
+          } catch (error) {
+            console.error('❌ Profile load error:', error);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setProfile(null);
         }
+        
+        setLoading(false);
       }
     );
 
@@ -77,7 +109,7 @@ export const useAuth = () => {
         console.log('⏰ Backup timeout - forcing load');
         setLoading(false);
       }
-    }, 1500);
+    }, 2000);
 
     return () => {
       mounted = false;
