@@ -232,9 +232,6 @@ const FeaturedProducts = () => {
                   <div className="text-2xl font-bold text-primary">
                     R$ {getPrice(product).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    ou 12x de R$ {(getPrice(product) / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </span>
                   {profile?.setor === 'revenda' && (
                     <div className="text-xs text-green-600 font-medium mt-1">
                       Preço Revenda
