@@ -105,7 +105,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
   };
 
   const handleWhatsAppContact = () => {
-    const phoneNumber = '558534833373';
+    const phoneNumber = '5511999999999';
     const message = 'Olá! Gostaria de saber mais sobre os produtos da KECINFORSTORE.';
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
@@ -146,7 +146,7 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-foreground">
-          Produtos ({products.length})
+          {searchTerm || selectedCategory !== 'all' ? `Produtos (${products.length})` : `Todos os Produtos (${products.length})`}
         </h2>
         <Button
           onClick={handleWhatsAppContact}
@@ -204,9 +204,6 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
                 <div className="mb-3 md:mb-4">
                   <div className="text-lg md:text-xl font-bold text-blue-600">
                     R$ {(profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo)?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}
-                  </div>
-                  <div className="text-xs text-gray-500 hidden md:block">
-                    ou 12x de R$ {((profile?.setor === 'revenda' ? product.price_revenda : product.price_varejo) || 0 / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </div>
                   {profile?.setor === 'revenda' && (
                     <div className="text-xs text-green-600 font-medium">
