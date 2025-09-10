@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 import Footer from '@/components/Footer';
@@ -10,31 +10,28 @@ import BannerCarousel from '@/components/BannerCarousel';
 import ChatBot from '@/components/ChatBot';
 import AuthPage from '@/components/Auth/AuthPage';
 import AdminDashboard from '@/components/Admin/AdminDashboard';
-import { useAuth } from '@/hooks/useAuth';
+
 
 const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const { loading } = useAuth();
-
-  console.log('🏠 Index render - loading:', loading);
   
-  // Show loading screen while auth is initializing
-  if (loading) {
-    console.log('🏠 Showing loading screen');
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando KECINFORSTORE...</p>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('🏠 Showing main content');
+  const handleSearchChange = (term: string) => {
+    console.log('📝 Index - Search term changed:', term);
+    setSearchTerm(term);
+    // When user starts typing, reset category to search in all products
+    if (term.trim() !== '' && selectedCategory !== 'all') {
+      console.log('🔄 Index - Resetting category to "all" for search');
+      setSelectedCategory('all');
+    }
+  };
+  
+  const handleCategoryChange = (category: string) => {
+    console.log('📝 Index - Category changed:', category);
+    setSelectedCategory(category);
+  };
 
   if (showAuth) {
     return <AuthPage onBack={() => setShowAuth(false)} />;
@@ -44,32 +41,52 @@ const Index = () => {
     return <AdminDashboard onBack={() => setShowAdmin(false)} />;
   }
 
+  
+  // Check if user is searching or has selected a category
+  const isSearching = searchTerm.trim() !== '' || selectedCategory !== 'all';
+  
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        onAuthClick={() => setShowAuth(true)}
-        onAdminClick={() => setShowAdmin(true)}
+      <Header
+        onAuthClick={() => {
+          console.log('🔑 Index - Auth clicked');
+          setShowAuth(true);
+        }}
+        onAdminClick={() => {
+          console.log('👑 Index - Admin clicked');
+          setShowAdmin(true);
+        }}
         searchTerm={searchTerm}
         selectedCategory={selectedCategory}
-        onSearchChange={setSearchTerm}
-        onCategoryChange={setSelectedCategory}
+        onSearchChange={handleSearchChange}
+        onCategoryChange={handleCategoryChange}
       />
       
-      <BannerCarousel />
-      
-      <FeaturedProducts />
-      
-      {/* Only show ProductList when there's a search term or category selected */}
-      {(searchTerm.trim() !== '' || selectedCategory !== 'all') && (
-        <main className="container mx-auto px-4 py-8">        
-          <ProductList
-            searchTerm={searchTerm}
-            selectedCategory={selectedCategory}
-          />
-        </main>
+      {isSearching ? (
+        // Search results page - clean white background with only products
+        <div className="bg-white min-h-screen">
+          <main className="container mx-auto px-4 py-8">        
+            <ProductList
+              searchTerm={searchTerm}
+              selectedCategory={selectedCategory}
+            />
+          </main>
+        </div>
+      ) : (
+        // Home page with all sections
+        <>
+          <BannerCarousel />
+          <FeaturedProducts />
+          <main className="container mx-auto px-4 py-8">        
+            <ProductList
+              searchTerm={searchTerm}
+              selectedCategory={selectedCategory}
+            />
+          </main>
+          <CategoriesSection onCategorySelect={handleCategoryChange} />
+        </>
       )}
-
-      <CategoriesSection onCategorySelect={setSelectedCategory} />
+      
       <Footer />
       <ChatBot />
     </div>
