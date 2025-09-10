@@ -17,103 +17,81 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     let mounted = true;
-    
-    const initAuth = async () => {
+
+    const getSession = async () => {
       try {
-        console.log('🚀 Starting auth initialization...');
-        
-        // Get current session
+        console.log('🔑 Getting session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('❌ Session error:', error);
+          console.error('🔑 Session error:', error);
         }
-        
-        console.log('👤 Current session:', session?.user?.email || 'No user');
         
         if (mounted) {
           setSession(session);
           setUser(session?.user ?? null);
+          console.log('🔑 Session set:', !!session);
           
-          // Get profile if user exists
           if (session?.user) {
-            try {
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .maybeSingle();
-              
-              if (profileError) {
-                console.error('❌ Profile error:', profileError);
-              } else {
-                console.log('👤 Profile found:', profileData ? 'Yes' : 'No');
-                setProfile(profileData as Profile);
-              }
-            } catch (profileErr) {
-              console.error('❌ Profile fetch error:', profileErr);
+            console.log('👤 Getting profile for user:', session.user.id);
+            // Get profile
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('user_id', session.user.id)
+              .maybeSingle();
+            
+            if (profileError) {
+              console.error('👤 Profile error:', profileError);
+            }
+            
+            if (mounted) {
+              setProfile(profileData as Profile);
+              console.log('👤 Profile set:', !!profileData);
             }
           }
           
-          console.log('✅ Auth initialization complete');
           setLoading(false);
         }
       } catch (error) {
-        console.error('❌ Auth init error:', error);
+        console.error('🔑 Auth error:', error);
         if (mounted) {
           setLoading(false);
         }
       }
     };
 
-    // Set up auth listener
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 Auth event:', event);
-        
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Load profile for signed in user
-        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          try {
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
             const { data: profileData } = await supabase
               .from('profiles')
               .select('*')
               .eq('user_id', session.user.id)
               .maybeSingle();
             setProfile(profileData as Profile);
-          } catch (error) {
-            console.error('❌ Profile load error:', error);
+          } else if (event === 'SIGNED_OUT') {
+            setProfile(null);
           }
-        } else if (event === 'SIGNED_OUT') {
-          setProfile(null);
+          
+          setLoading(false);
         }
-        
-        setLoading(false);
       }
     );
 
-    // Initialize
-    initAuth();
-
-    // Backup timeout
-    const timeout = setTimeout(() => {
-      if (mounted) {
-        console.log('⏰ Backup timeout - forcing load');
-        setLoading(false);
-      }
-    }, 2000);
+    getSession();
 
     return () => {
       mounted = false;
-      clearTimeout(timeout);
       subscription.unsubscribe();
     };
   }, []);
